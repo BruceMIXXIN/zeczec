@@ -1,0 +1,4 @@
+beautifulsoup4
+cloudscraper
+gspread
+oauth2client
