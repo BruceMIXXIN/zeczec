@@ -1,3 +1,4 @@
+import argparse
 import cloudscraper
 import datetime
 import time
@@ -110,6 +111,20 @@ def send_google_chat(webhook_url, message):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Zeczec sheet monitor")
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Run a single check and exit",
+    )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=600,
+        help="Interval seconds between checks (default: 600)",
+    )
+    args = parser.parse_args()
+
     print("▶️ 開始執行監控程式")
     while True:
         try:
@@ -119,5 +134,9 @@ if __name__ == "__main__":
                 check_zeczec(project)
         except Exception as e:
             print(f"⚠️ 程式執行錯誤：{e}")
-        print("⏳ 等待 10 分鐘後再次檢查...\n")
-        time.sleep(600)  # 每 10 分鐘執行一次
+
+        if args.once:
+            break
+
+        print(f"⏳ 等待 {args.interval} 秒後再次檢查...\n")
+        time.sleep(args.interval)

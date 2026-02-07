@@ -1,0 +1,48 @@
+name: Zeczec Monitor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Write service account file
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+        run: |
+          python - <<'PY'
+          import os
+          import json
+          payload = os.environ.get("SERVICE_ACCOUNT_JSON", "")
+          if not payload:
+              raise SystemExit("Missing SERVICE_ACCOUNT_JSON secret")
+          # Support either raw JSON or base64-encoded JSON
+          try:
+              data = json.loads(payload)
+          except json.JSONDecodeError:
+              import base64
+              data = json.loads(base64.b64decode(payload).decode("utf-8"))
+          with open("service_account.json", "w", encoding="utf-8") as f:
+              json.dump(data, f)
+          print("Wrote service_account.json")
+          PY
+
+      - name: Run monitor once
+        run: |
+          python zeczec_sheet_monitorNN.py --once

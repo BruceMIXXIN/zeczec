@@ -33,6 +33,26 @@ pip install -r requirements.txt
 python zeczec_sheet_monitorNN.py
 ```
 
+### Run once (for testing)
+```bash
+python zeczec_sheet_monitorNN.py --once
+```
+
+### Change interval
+```bash
+python zeczec_sheet_monitorNN.py --interval 600
+```
+
+## GitHub Actions (every 30 minutes)
+This repo includes a workflow that runs every 30 minutes.
+
+Before it can run, add a GitHub Actions secret:
+- Name: `SERVICE_ACCOUNT_JSON`
+- Value: The full JSON content of your service account file
+
+The workflow writes `service_account.json` at runtime and runs:
+`python zeczec_sheet_monitorNN.py --once`
+
 ## Notes
 - The script runs forever and checks every 10 minutes.
 - Make sure `service_account.json` is **not** committed to Git.
