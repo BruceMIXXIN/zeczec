@@ -22,18 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        env:
-          RUNNER_TOOL_CACHE: /Users/bruce/actions-runner2/_work/_toolcache
-          AGENT_TOOLSDIRECTORY: /Users/bruce/actions-runner2/_work/_toolcache
-        with:
-          python-version: "3.11"
+      - name: Verify Python
+        run: |
+          python3 --version
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
       - name: Write service account file
         env:
