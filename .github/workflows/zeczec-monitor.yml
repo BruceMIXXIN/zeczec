@@ -8,6 +8,10 @@ on:
 jobs:
   run:
     runs-on: self-hosted
+    env:
+      HOME: /Users/bruce
+      RUNNER_TEMP: /Users/bruce/actions-runner2/_work/_temp
+      RUNNER_TOOL_CACHE: /Users/bruce/actions-runner2/_work/_toolcache
     steps:
       - name: Checkout
         uses: actions/checkout@v4
