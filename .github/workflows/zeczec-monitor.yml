@@ -17,6 +17,7 @@ jobs:
       RUNNER_TEMP: /Users/bruce/actions-runner2/_work/_temp
       RUNNER_TOOL_CACHE: /Users/bruce/actions-runner2/_work/_toolcache
       AGENT_TOOLSDIRECTORY: /Users/bruce/actions-runner2/_work/_toolcache
+      ZECZEC_HEARTBEAT_WEBHOOK: ${{ secrets.ZECZEC_HEARTBEAT_WEBHOOK }}
     steps:
       - name: Prepare toolcache
         run: |

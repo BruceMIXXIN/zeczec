@@ -53,6 +53,11 @@ Before it can run, add a GitHub Actions secret:
 The workflow writes `service_account.json` at runtime and runs:
 `python zeczec_sheet_monitorNN.py --once`
 
+### Optional heartbeat notification
+You can add a global webhook to receive a "run completed" message each time:
+- Secret name: `ZECZEC_HEARTBEAT_WEBHOOK`
+- Value: Your Google Chat incoming webhook URL
+
 ## Notes
 - The script runs forever and checks every 10 minutes.
 - Make sure `service_account.json` is **not** committed to Git.

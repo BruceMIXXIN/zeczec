@@ -13,6 +13,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 SHEET_KEY = '1M75GxuQGQ1GpNxRT0qvHB6ecwIcb54vUGlPXiLma_Io'
 SERVICE_ACCOUNT_FILE = 'service_account.json'  # 你的 JSON 憑證檔
 REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', 'Webhook', '是否啟用']
+HEARTBEAT_WEBHOOK = os.getenv('ZECZEC_HEARTBEAT_WEBHOOK', '').strip()
 
 # 每天早上會自動重啟（建議搭配 launchd 呼叫這支腳本）
 # 如果失敗自動刷新 cloudscraper 並重試最多 3 次
@@ -110,6 +111,12 @@ def send_google_chat(webhook_url, message):
         print(f"❌ 發送通知失敗：{e}")
 
 
+def send_heartbeat(message):
+    if not HEARTBEAT_WEBHOOK:
+        return
+    send_google_chat(HEARTBEAT_WEBHOOK, message)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Zeczec sheet monitor")
     parser.add_argument(
@@ -132,8 +139,10 @@ if __name__ == "__main__":
             print(f"📋 抓到 {len(projects)} 個啟用專案")
             for project in projects:
                 check_zeczec(project)
+            send_heartbeat(f"✅ 嘖嘖監控已完成一輪：{len(projects)} 個啟用專案")
         except Exception as e:
             print(f"⚠️ 程式執行錯誤：{e}")
+            send_heartbeat(f"⚠️ 嘖嘖監控發生錯誤：{e}")
 
         if args.once:
             break
