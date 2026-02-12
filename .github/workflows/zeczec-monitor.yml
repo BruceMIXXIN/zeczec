@@ -12,12 +12,21 @@ jobs:
       HOME: /Users/bruce
       RUNNER_TEMP: /Users/bruce/actions-runner2/_work/_temp
       RUNNER_TOOL_CACHE: /Users/bruce/actions-runner2/_work/_toolcache
+      AGENT_TOOLSDIRECTORY: /Users/bruce/actions-runner2/_work/_toolcache
     steps:
+      - name: Prepare toolcache
+        run: |
+          mkdir -p /Users/bruce/actions-runner2/_work/_temp
+          mkdir -p /Users/bruce/actions-runner2/_work/_toolcache
+
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
+        env:
+          RUNNER_TOOL_CACHE: /Users/bruce/actions-runner2/_work/_toolcache
+          AGENT_TOOLSDIRECTORY: /Users/bruce/actions-runner2/_work/_toolcache
         with:
           python-version: "3.11"
 
