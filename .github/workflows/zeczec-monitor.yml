@@ -54,4 +54,4 @@ jobs:
 
       - name: Run monitor once
         run: |
-          python zeczec_sheet_monitorNN.py --once
+          python3 zeczec_sheet_monitorNN.py --once
