@@ -54,7 +54,7 @@ The workflow writes `service_account.json` at runtime and runs:
 `python zeczec_sheet_monitorNN.py --once`
 
 ### Optional heartbeat notification
-You can add a global webhook to receive a "run completed" message each time:
+You can add a global webhook to receive "run started" + "run completed" messages:
 - Secret name: `ZECZEC_HEARTBEAT_WEBHOOK`
 - Value: Your Google Chat incoming webhook URL
 

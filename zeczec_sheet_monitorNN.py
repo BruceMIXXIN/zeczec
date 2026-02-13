@@ -12,7 +12,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 # ===== Google Sheets 設定 =====
 SHEET_KEY = '1M75GxuQGQ1GpNxRT0qvHB6ecwIcb54vUGlPXiLma_Io'
 SERVICE_ACCOUNT_FILE = 'service_account.json'  # 你的 JSON 憑證檔
-REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', '是否啟用']
+REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', 'Webhook', '是否啟用']
 HEARTBEAT_WEBHOOK = os.getenv('ZECZEC_HEARTBEAT_WEBHOOK', '').strip()
 ALWAYS_SUMMARY_NOTIFY = os.getenv('ALWAYS_SUMMARY_NOTIFY', '').strip().lower() in ('1', 'true', 'yes', 'on')
 ALERT_WEBHOOK_URL = os.getenv('ALERT_WEBHOOK_URL', '').strip()
@@ -116,6 +116,10 @@ def send_google_chat(webhook_url, message):
         print(f"❌ 發送通知失敗：{e}")
 
 
+def now_str():
+    return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+
 def send_heartbeat(message):
     if not HEARTBEAT_WEBHOOK:
         return
@@ -152,6 +156,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("▶️ 開始執行監控程式")
+    send_heartbeat(f"🚀 嘖嘖監控開始：{now_str()}")
     while True:
         try:
             projects = fetch_projects_from_sheets()
@@ -169,7 +174,7 @@ if __name__ == "__main__":
                     low_count += 1
                 elif result['status'] == 'error':
                     error_count += 1
-            send_heartbeat(f"✅ 嘖嘖監控已完成一輪：{len(projects)} 個啟用專案")
+            send_heartbeat(f"✅ 嘖嘖監控完成一輪：{len(projects)} 個啟用專案（{now_str()}）")
             if ALWAYS_SUMMARY_NOTIFY:
                 now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
                 summary = (
@@ -182,7 +187,7 @@ if __name__ == "__main__":
                 send_summary_to_project_webhooks(projects, summary)
         except Exception as e:
             print(f"⚠️ 程式執行錯誤：{e}")
-            send_heartbeat(f"⚠️ 嘖嘖監控發生錯誤：{e}")
+            send_heartbeat(f"⚠️ 嘖嘖監控錯誤：{e}（{now_str()}）")
 
         if args.once:
             break
