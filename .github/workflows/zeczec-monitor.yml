@@ -16,6 +16,7 @@ jobs:
     env:
       ZECZEC_HEARTBEAT_WEBHOOK: ${{ secrets.ZECZEC_HEARTBEAT_WEBHOOK }}
       ALWAYS_SUMMARY_NOTIFY: "1"
+      ALERT_WEBHOOK_URL: "https://chat.googleapis.com/v1/spaces/AAQAnGrXo8k/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=RL7E9GzW0A34pxNFxHviwOGI9-V4DakpCpdYO1pjkiU"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

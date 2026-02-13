@@ -12,9 +12,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 # ===== Google Sheets 設定 =====
 SHEET_KEY = '1M75GxuQGQ1GpNxRT0qvHB6ecwIcb54vUGlPXiLma_Io'
 SERVICE_ACCOUNT_FILE = 'service_account.json'  # 你的 JSON 憑證檔
-REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', 'Webhook', '是否啟用']
+REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', '是否啟用']
 HEARTBEAT_WEBHOOK = os.getenv('ZECZEC_HEARTBEAT_WEBHOOK', '').strip()
 ALWAYS_SUMMARY_NOTIFY = os.getenv('ALWAYS_SUMMARY_NOTIFY', '').strip().lower() in ('1', 'true', 'yes', 'on')
+ALERT_WEBHOOK_URL = os.getenv('ALERT_WEBHOOK_URL', '').strip()
 
 # 每天早上會自動重啟（建議搭配 launchd 呼叫這支腳本）
 # 如果失敗自動刷新 cloudscraper 並重試最多 3 次
@@ -40,7 +41,7 @@ def fetch_projects_from_sheets():
                 'name': row['專案名稱'],
                 'url': row['噴噴網址'],
                 'threshold': int(row['門檻值']),
-                'webhook': row['Webhook']
+                'webhook': str(row.get('Webhook', '')).strip()
             })
     return projects
 
@@ -62,7 +63,7 @@ def check_zeczec(project):
     url = project['url']
     name = project['name']
     threshold = int(project['threshold'])
-    webhook_url = project['webhook']
+    webhook_url = ALERT_WEBHOOK_URL or project['webhook']
 
     headers = {
         "User-Agent": (
@@ -122,6 +123,10 @@ def send_heartbeat(message):
 
 
 def send_summary_to_project_webhooks(projects, message):
+    if ALERT_WEBHOOK_URL:
+        send_google_chat(ALERT_WEBHOOK_URL, message)
+        return
+
     webhook_urls = {
         str(project.get('webhook', '')).strip()
         for project in projects
