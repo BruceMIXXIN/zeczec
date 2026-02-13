@@ -14,6 +14,7 @@ SHEET_KEY = '1M75GxuQGQ1GpNxRT0qvHB6ecwIcb54vUGlPXiLma_Io'
 SERVICE_ACCOUNT_FILE = 'service_account.json'  # 你的 JSON 憑證檔
 REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', 'Webhook', '是否啟用']
 HEARTBEAT_WEBHOOK = os.getenv('ZECZEC_HEARTBEAT_WEBHOOK', '').strip()
+ALWAYS_SUMMARY_NOTIFY = os.getenv('ALWAYS_SUMMARY_NOTIFY', '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 # 每天早上會自動重啟（建議搭配 launchd 呼叫這支腳本）
 # 如果失敗自動刷新 cloudscraper 並重試最多 3 次
@@ -77,7 +78,7 @@ def check_zeczec(project):
         html = fetch_with_retry(url, headers)
     except Exception as e:
         send_google_chat(webhook_url, f"\U0001F6A8 專案【{name}】頁面抓取失敗：{e}")
-        return
+        return {'status': 'error', 'name': name, 'low_count': 0}
 
     soup = BeautifulSoup(html, 'html.parser')
     cards = soup.find_all('div', class_='lg:w-full px-4 lg:px-0 flex-none self-start xs:w-1/2')
@@ -97,8 +98,10 @@ def check_zeczec(project):
     if low_stock_list:
         message = f"⚡️ 嘖嘖方案快賣完了！（專案：{name}）\n提醒時間：{now}\n" + "\n".join(low_stock_list)
         send_google_chat(webhook_url, message)
+        return {'status': 'low', 'name': name, 'low_count': len(low_stock_list)}
     else:
         print(f"✅【{name}】目前無低於 {threshold} 份的方案，不發送通知。")
+        return {'status': 'ok', 'name': name, 'low_count': 0}
 
 
 def send_google_chat(webhook_url, message):
@@ -115,6 +118,16 @@ def send_heartbeat(message):
     if not HEARTBEAT_WEBHOOK:
         return
     send_google_chat(HEARTBEAT_WEBHOOK, message)
+
+
+def send_summary_to_project_webhooks(projects, message):
+    webhook_urls = {
+        str(project.get('webhook', '')).strip()
+        for project in projects
+        if str(project.get('webhook', '')).strip()
+    }
+    for webhook_url in webhook_urls:
+        send_google_chat(webhook_url, message)
 
 
 if __name__ == "__main__":
@@ -137,9 +150,30 @@ if __name__ == "__main__":
         try:
             projects = fetch_projects_from_sheets()
             print(f"📋 抓到 {len(projects)} 個啟用專案")
+            ok_count = 0
+            low_count = 0
+            error_count = 0
             for project in projects:
-                check_zeczec(project)
+                result = check_zeczec(project)
+                if not result:
+                    continue
+                if result['status'] == 'ok':
+                    ok_count += 1
+                elif result['status'] == 'low':
+                    low_count += 1
+                elif result['status'] == 'error':
+                    error_count += 1
             send_heartbeat(f"✅ 嘖嘖監控已完成一輪：{len(projects)} 個啟用專案")
+            if ALWAYS_SUMMARY_NOTIFY:
+                now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+                summary = (
+                    f"📊 嘖嘖監控摘要（{now}）\n"
+                    f"總專案：{len(projects)}\n"
+                    f"正常：{ok_count}\n"
+                    f"低庫存：{low_count}\n"
+                    f"錯誤：{error_count}"
+                )
+                send_summary_to_project_webhooks(projects, summary)
         except Exception as e:
             print(f"⚠️ 程式執行錯誤：{e}")
             send_heartbeat(f"⚠️ 嘖嘖監控發生錯誤：{e}")
