@@ -108,7 +108,8 @@ def send_google_chat(webhook_url, message):
     payload = {'text': message}
     try:
         scraper = cloudscraper.create_scraper()
-        scraper.post(webhook_url, json=payload)
+        response = scraper.post(webhook_url, json=payload, timeout=20)
+        response.raise_for_status()
         print("✅ 已發送通知到 Google Chat")
     except Exception as e:
         print(f"❌ 發送通知失敗：{e}")
