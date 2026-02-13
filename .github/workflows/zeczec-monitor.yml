@@ -7,11 +7,12 @@ on:
 
 concurrency:
   group: zeczec-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   run:
     runs-on: self-hosted
+    timeout-minutes: 20
     env:
       HOME: /Users/bruce
       RUNNER_TEMP: /Users/bruce/actions-runner2/_work/_temp
