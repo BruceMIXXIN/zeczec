@@ -78,6 +78,19 @@ body {
   font-weight: 500;
 }
 
+.helper-text {
+  margin: 10px 0 0;
+  color: #6e8098;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.helper-text a {
+  color: var(--link);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .form { margin-top: 20px; }
 
 .fields {
