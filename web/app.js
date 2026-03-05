@@ -6,7 +6,7 @@ const CONFIG = {
   // 欄位 name 必須與 Google Sheet 第一列標題完全相同
   fields: [
     { name: "專案名稱", label: "專案名稱", type: "text", required: true, placeholder: "請輸入專案名稱" },
-    { name: "噴噴網址", label: "噴噴網址", type: "url", required: true, placeholder: "https://..." },
+    { name: "噴噴網址", label: "嘖嘖網址", type: "url", required: true, placeholder: "https://..." },
     { name: "門檻值", label: "門檻值", type: "number", required: true, placeholder: "例如 10" },
     { name: "Webhook", label: "Webhook", type: "url", required: true, placeholder: "https://chat.googleapis.com/..." },
     { name: "是否啟用", label: "是否啟用", type: "choice", required: true, options: ["是", "否"], defaultValue: "是" },
