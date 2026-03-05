@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>資料填寫表單</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card" aria-label="Google Sheet 表單">
+        <header class="hero">
+          <p class="eyebrow">MIXXIN FORM</p>
+          <h1>嘖嘖數量通知</h1>
+          <p class="subtitle">請務必填寫以下內容，缺一不可</p>
+        </header>
+
+        <form id="sheet-form" class="form" novalidate>
+          <div id="fields" class="fields" aria-live="polite"></div>
+
+          <div class="actions">
+            <button id="submit-btn" class="btn" type="submit">送出資料</button>
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <section class="enabled-section" aria-label="專案狀態">
+          <div class="enabled-head">
+            <h2>專案狀態</h2>
+            <button id="refresh-enabled-btn" class="btn btn-ghost" type="button">重新整理</button>
+          </div>
+          <div class="status-switch" role="group" aria-label="專案狀態篩選">
+            <button class="status-tab is-active js-status-tab" type="button" data-status="enabled">狀態「是」的專案</button>
+            <button class="status-tab js-status-tab" type="button" data-status="disabled">狀態「否」的專案</button>
+          </div>
+          <p id="enabled-status" class="status" role="status" aria-live="polite"></p>
+          <div id="enabled-list" class="enabled-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
