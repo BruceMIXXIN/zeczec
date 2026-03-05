@@ -12,7 +12,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 # ===== Google Sheets 設定 =====
 SHEET_KEY = '1M75GxuQGQ1GpNxRT0qvHB6ecwIcb54vUGlPXiLma_Io'
 SERVICE_ACCOUNT_FILE = 'service_account.json'  # 你的 JSON 憑證檔
-REQUIRED_COLUMNS = ['專案名稱', '噴噴網址', '門檻值', 'Webhook', '是否啟用']
+REQUIRED_COLUMNS = ['專案名稱', '門檻值', 'Webhook', '是否啟用']
+URL_COLUMN_CANDIDATES = ['嘖嘖網址', '噴噴網址']
 HEARTBEAT_WEBHOOK = os.getenv('ZECZEC_HEARTBEAT_WEBHOOK', '').strip()
 ALWAYS_SUMMARY_NOTIFY = os.getenv('ALWAYS_SUMMARY_NOTIFY', '').strip().lower() in ('1', 'true', 'yes', 'on')
 ALERT_WEBHOOK_URL = os.getenv('ALERT_WEBHOOK_URL', '').strip()
@@ -33,13 +34,17 @@ def fetch_projects_from_sheets():
     if not all(col in headers for col in REQUIRED_COLUMNS):
         print(f"❌ 系統錯誤：缺欄位，應包含：{REQUIRED_COLUMNS}")
         return []
+    url_col = next((col for col in URL_COLUMN_CANDIDATES if col in headers), None)
+    if not url_col:
+        print(f"❌ 系統錯誤：缺網址欄位，應包含其中之一：{URL_COLUMN_CANDIDATES}")
+        return []
 
     projects = []
     for row in rows:
         if str(row.get('是否啟用', '')).strip() == '是':
             projects.append({
                 'name': row['專案名稱'],
-                'url': row['噴噴網址'],
+                'url': row.get(url_col, ''),
                 'threshold': int(row['門檻值']),
                 'webhook': str(row.get('Webhook', '')).strip()
             })
